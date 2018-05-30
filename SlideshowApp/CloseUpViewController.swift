@@ -12,10 +12,14 @@ class CloseUpViewController: UIViewController {
     
     @IBOutlet weak var closeUpImage: UIImageView!
     
+    var rcvImage: String? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        
+        closeUpImage.image = UIImage(named: rcvImage!)
     }
 
     override func didReceiveMemoryWarning() {
@@ -25,7 +29,7 @@ class CloseUpViewController: UIViewController {
     
 
     /*
-    // MARK: - Navigation
+    // MARK: - Navigationb
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController {
-    
+
     @IBOutlet weak var slideImage: UIImageView!
     @IBOutlet weak var forwardButton: UIButton!
     @IBOutlet weak var backwardButton: UIButton!
@@ -69,6 +69,7 @@ class ViewController: UIViewController {
         
     }
     
+    //「戻る」ボタンを押したとき
     @IBAction func pushBwButton(_ sender: Any) {
         
         //表示画像指定インデックスを-1
@@ -95,7 +96,7 @@ class ViewController: UIViewController {
             if ( self.timer == nil ) {
                 self.timer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(nextImage), userInfo: nil, repeats: true)
             }
-            
+
             //ボタンのタイトルを変更
             playPauseButton.setTitle("停止", for: .normal)
             
@@ -127,9 +128,6 @@ class ViewController: UIViewController {
     
     @objc func nextImage() {
         
-        //スライドショーで表示する画像の表示
-        displayImage(idx: self.index)
-        
         //次に表示する画像を指定するようにインデックスを+1
         self.index += 1
         
@@ -137,19 +135,30 @@ class ViewController: UIViewController {
         if ( self.index > testImage.count - 1) {
             self.index = 0
         }
-        
+        //スライドショーで表示する画像の表示
+        displayImage(idx: self.index)
+       
     }
 
-    
-    @IBAction func tapCloseUpShow(_ sender: AnyObject) {
+    //画像領域タップで、拡大表示画面へ遷移
+    @IBAction func tapCloseUpShow(_ sender: Any) {
         
         //拡大画面に遷移
-        performSegue(withIdentifier: "closeUpShow", sender: nil)
+        performSegue(withIdentifier: "closeUpShow", sender: self.testImage[index])
         
     }
     
+    override func prepare( for segue: UIStoryboardSegue, sender: Any? ) {
+
+        if ( segue.identifier == "closeUpShow" ) {
+            let closeUpShowViewController = segue.destination as! CloseUpViewController
+            closeUpShowViewController.rcvImage = sender as! String?
+            
+        }
+    }
+
     @IBAction func unwind (_ segue: UIStoryboardSegue ) {
-        
+
     }
 
 }
