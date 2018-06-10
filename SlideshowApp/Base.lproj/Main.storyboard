@@ -18,16 +18,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="w9M-ur-eqB">
-                                <rect key="frame" x="11" y="67" width="352" height="298"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                                <gestureRecognizers/>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="JhE-HL-qOJ" appends="YES" id="ih8-dU-pkd"/>
-                                </connections>
-                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="96D-8D-meZ">
-                                <rect key="frame" x="53" y="422" width="66" height="30"/>
+                                <rect key="frame" x="274" y="462" width="66" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES"/>
                                 <state key="normal" title="進む"/>
                                 <connections>
@@ -35,7 +27,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="22p-uG-xEv">
-                                <rect key="frame" x="154" y="422" width="66" height="30"/>
+                                <rect key="frame" x="35" y="462" width="66" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES"/>
                                 <state key="normal" title="戻る"/>
                                 <connections>
@@ -43,13 +35,17 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tj2-LJ-SoZ">
-                                <rect key="frame" x="256" y="422" width="66" height="30"/>
+                                <rect key="frame" x="154" y="462" width="66" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES"/>
                                 <state key="normal" title="再生/停止"/>
                                 <connections>
                                     <action selector="ppButtonWork:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bYk-mp-cKR"/>
                                 </connections>
                             </button>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" pagingEnabled="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4rX-6z-RqQ">
+                                <rect key="frame" x="17" y="186" width="342" height="227"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -58,7 +54,7 @@
                         <outlet property="backwardButton" destination="22p-uG-xEv" id="4YK-eJ-ftM"/>
                         <outlet property="forwardButton" destination="96D-8D-meZ" id="jtS-Mq-77X"/>
                         <outlet property="playPauseButton" destination="tj2-LJ-SoZ" id="1t0-hb-GC9"/>
-                        <outlet property="slideImage" destination="w9M-ur-eqB" id="QK6-b1-M4x"/>
+                        <outlet property="slideImage" destination="4rX-6z-RqQ" id="HVO-QO-K8c"/>
                         <segue destination="hjB-Ig-Eu9" kind="presentation" identifier="closeUpShow" modalPresentationStyle="fullScreen" id="0fH-Rs-IPU"/>
                     </connections>
                 </viewController>

@@ -10,10 +10,24 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    @IBOutlet weak var slideImage: UIImageView!
+    @IBOutlet weak var slideImage: UIScrollView!
     @IBOutlet weak var forwardButton: UIButton!
     @IBOutlet weak var backwardButton: UIButton!
     @IBOutlet weak var playPauseButton: UIButton!
+    
+    var scrollScreenHeight:CGFloat! // ScrollScreenの高さ
+    var scrollScreenWidth:CGFloat!  // ScrollScreenの幅
+    
+    
+    var pageNum: Int!    //ページ数
+    
+    var imageWidth: CGFloat!
+    var imageHeight: CGFloat!
+    var screenSize: CGRect!
+    
+    // 描画開始の x,y 位置
+    var px: CGFloat = 0.0
+    var py: CGFloat = 0.0
     
     //画像を配列に保持
     let testImage: [String] = [
@@ -35,8 +49,35 @@ class ViewController: UIViewController {
         //再生/停止ボタン状態初期化
         ppButtonInit()
         
-        //アプリ起動直後の最初の画像を表示
-        displayImage(idx: self.index)
+        //画面サイズを取得
+        screenSize = UIScreen.main.bounds
+        
+        //ページ単位のスクロールにするため、ScrollScreenの幅を画面の幅と同じにする
+        scrollScreenWidth = screenSize.width
+        
+        pageNum = testImage.count  //表示予定の画像数分のページ
+
+        scrollScreenHeight = slideImage.bounds.size.height
+        
+        //描画開始位置の設定
+        initializeStartDrawPoint(x: slideImage.bounds.origin.x, y: slideImage.bounds.origin.y)
+        
+        for i in 0 ..< pageNum {
+            let image: UIImage = UIImage(named: testImage[i])!
+            let imageView = UIImageView(image: image)
+            
+            var rect:CGRect = imageView.frame
+            rect.size.height = scrollScreenHeight
+            rect.size.width = scrollScreenWidth
+            
+            imageView.frame = rect
+            imageView.tag = i + 1
+            
+            // UIScrollViewのインスタンスに画像を貼付ける
+            self.slideImage.addSubview(imageView)
+        }
+        
+        setupScrollImage()
 
     }
 
@@ -48,8 +89,7 @@ class ViewController: UIViewController {
     //画像を画面に表示（画面１）
     func displayImage(idx: Int) {
         
-        //画面に画像を出力
-        slideImage.image = UIImage(named: testImage[idx])
+
         
     }
     
@@ -128,15 +168,11 @@ class ViewController: UIViewController {
     
     @objc func nextImage() {
         
-        //次に表示する画像を指定するようにインデックスを+1
-        self.index += 1
-        
-        //画像指定インデックスの上限判定
-        if ( self.index > testImage.count - 1) {
-            self.index = 0
+        if ( slideImage.frame.size.width > px ) {
+            px = 0.0
+        } else {
+            px += (slideImage.frame.size.width)
         }
-        //スライドショーで表示する画像の表示
-        displayImage(idx: self.index)
        
     }
 
@@ -160,8 +196,36 @@ class ViewController: UIViewController {
     @IBAction func unwind (_ segue: UIStoryboardSegue ) {
 
     }
-
+    
+    func setupScrollImage() {
+        
+        let imageDummy: UIImage = UIImage(named: testImage[0])!
+        var imgView = UIImageView(image:imageDummy)
+        var subviews: Array = slideImage.subviews
+        
+        for i in 0 ..< subviews.count {
+            imgView = subviews[i] as! UIImageView
+            if (imgView.isKind(of: UIImageView.self) && imgView.tag > 0){
+                
+                var viewFrame: CGRect = imgView.frame
+                viewFrame.origin = CGPoint(x: px, y: py)
+                imgView.frame = viewFrame
+                
+                px += (slideImage.frame.size.width)
+                
+            }
+        }
+        // UIScrollViewのコンテンツサイズを画像のtotalサイズに合わせる
+        let nWidth: CGFloat = scrollScreenWidth * CGFloat(pageNum)
+        slideImage.contentSize = CGSize(width: nWidth, height: scrollScreenHeight)
+    }
+    
+    func initializeStartDrawPoint ( x: CGFloat, y: CGFloat ) {
+        px = x
+        py = y
+    }
+    
+    
 }
-
 
 
