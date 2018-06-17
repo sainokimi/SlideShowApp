@@ -25,6 +25,8 @@ class ViewController: UIViewController {
     var imageHeight: CGFloat!
     var screenSize: CGRect!
     
+//    var imageView: UIImageView!
+    
     // 描画開始の x,y 位置
     var px: CGFloat = 0.0
     var py: CGFloat = 0.0
@@ -71,7 +73,8 @@ class ViewController: UIViewController {
             rect.size.width = scrollScreenWidth
             
             imageView.frame = rect
-            imageView.tag = i + 1
+            
+            imageView.contentMode = .scaleAspectFit
             
             // UIScrollViewのインスタンスに画像を貼付ける
             self.slideImage.addSubview(imageView)
@@ -86,42 +89,27 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    //画像を画面に表示（画面１）
-    func displayImage(idx: Int) {
-        
-
-        
-    }
-    
     //「進む」ボタンを押したとき
     @IBAction func pushFwButton(_ sender: Any) {
         
-        //表示画像指定インデックスを+1
-        self.index += 1
-        
-        //画像指定インデックスの上限判定
-        if ( self.index > testImage.count - 1) {
-            self.index = 0
-        }
-        
-        //更新したインデックスで指定した画像を表示
-        displayImage(idx: self.index)
-        
+        nextImage()
+
     }
     
     //「戻る」ボタンを押したとき
     @IBAction func pushBwButton(_ sender: Any) {
         
-        //表示画像指定インデックスを-1
-        self.index -= 1
+        //スライドさせる位置の計算
+        var offset: CGPoint = CGPoint(x: slideImage.contentOffset.x - slideImage.frame.size.width, y: 0)
         
-        //画像指定インデックスの下限判定
-        if ( self.index < 0 ) {
-            self.index = (testImage.count - 1)
+        //現在位置が左端のとき、右端の位置を設定
+        if offset.x < 0 {
+            offset = CGPoint(x: slideImage.bounds.size.width * CGFloat(testImage.count), y: 0)
         }
         
-        //更新したインデックスで指定した画像を表示
-        displayImage(idx: self.index)
+        //表示画像の切り替え（スライド）
+        slideImage.setContentOffset(offset, animated: true)
+
     }
     
     func ppButtonInit() {
@@ -144,8 +132,6 @@ class ViewController: UIViewController {
             self.forwardButton.isEnabled = false
             self.backwardButton.isEnabled = false
             
-            //2秒間隔を計測するタイマを生成、始動 -> @objc属性ではなく、@IBActionを指定しても動く？
-            //Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(pushFwButton), userInfo: nil, repeats: true)
             
         } else {    //スライドショーの停止
             
@@ -168,27 +154,34 @@ class ViewController: UIViewController {
     
     @objc func nextImage() {
         
-        if ( slideImage.frame.size.width > px ) {
-            px = 0.0
-        } else {
-            px += (slideImage.frame.size.width)
+        //スライドさせる位置の計算
+        var offset: CGPoint = CGPoint(x: slideImage.contentOffset.x + slideImage.frame.size.width, y: 0)
+        
+        //現在位置が右端のとき、左端の位置を設定
+        if offset.x > slideImage.bounds.size.width * CGFloat(testImage.count) {
+            offset = CGPoint(x: 0, y: 0)
         }
-       
+        
+        //表示する画像の切り替え（スライド）
+        slideImage.setContentOffset(offset, animated: true)
+        
     }
 
     //画像領域タップで、拡大表示画面へ遷移
     @IBAction func tapCloseUpShow(_ sender: Any) {
         
         //拡大画面に遷移
-        performSegue(withIdentifier: "closeUpShow", sender: self.testImage[index])
+        performSegue(withIdentifier: "closeUpShow", sender: testImage)
         
     }
+    
     
     override func prepare( for segue: UIStoryboardSegue, sender: Any? ) {
 
         if ( segue.identifier == "closeUpShow" ) {
             let closeUpShowViewController = segue.destination as! CloseUpViewController
-            closeUpShowViewController.rcvImage = sender as! String?
+            closeUpShowViewController.rcvImage = sender as! [String]
+            closeUpShowViewController.imagePos = Int(slideImage.contentOffset.x / slideImage.bounds.size.width) + 1
             
         }
     }
@@ -199,22 +192,16 @@ class ViewController: UIViewController {
     
     func setupScrollImage() {
         
-        let imageDummy: UIImage = UIImage(named: testImage[0])!
-        var imgView = UIImageView(image:imageDummy)
-        var subviews: Array = slideImage.subviews
-        
-        for i in 0 ..< subviews.count {
-            imgView = subviews[i] as! UIImageView
-            if (imgView.isKind(of: UIImageView.self) && imgView.tag > 0){
+        for imageView: UIImageView in slideImage.subviews as! [UIImageView]  {
+            
+            var viewFrame: CGRect = imageView.frame
+            viewFrame.origin = CGPoint(x: px, y: py)
+            imageView.frame = viewFrame
+            
+            px += (slideImage.frame.size.width)
                 
-                var viewFrame: CGRect = imgView.frame
-                viewFrame.origin = CGPoint(x: px, y: py)
-                imgView.frame = viewFrame
-                
-                px += (slideImage.frame.size.width)
-                
-            }
         }
+        
         // UIScrollViewのコンテンツサイズを画像のtotalサイズに合わせる
         let nWidth: CGFloat = scrollScreenWidth * CGFloat(pageNum)
         slideImage.contentSize = CGSize(width: nWidth, height: scrollScreenHeight)
@@ -224,7 +211,6 @@ class ViewController: UIViewController {
         px = x
         py = y
     }
-    
     
 }
 

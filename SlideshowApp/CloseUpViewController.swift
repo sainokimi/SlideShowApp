@@ -12,14 +12,15 @@ class CloseUpViewController: UIViewController {
     
     @IBOutlet weak var closeUpImage: UIImageView!
     
-    var rcvImage: String? = nil
+    var rcvImage: [String]! = nil
+    var imagePos: Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        
-        closeUpImage.image = UIImage(named: rcvImage!)
+        closeUpImage.contentMode = .scaleAspectFit
+        closeUpImage.image = UIImage(named: rcvImage[imagePos])
     }
 
     override func didReceiveMemoryWarning() {
