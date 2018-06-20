@@ -64,24 +64,30 @@ class ViewController: UIViewController {
         //描画開始位置の設定
         initializeStartDrawPoint(x: slideImage.bounds.origin.x, y: slideImage.bounds.origin.y)
         
-        for i in 0 ..< pageNum {
-            let image: UIImage = UIImage(named: testImage[i])!
+        //最初の画像の初期位置（中央座標）を設定
+        var imageCenterPointX: CGFloat = scrollScreenWidth / CGFloat(2)
+        let imageCenterPointY: CGFloat = scrollScreenHeight
+        
+        var i: Int = 1  //ページ数
+        
+        //画像を数分だけ配置
+        for imageName in testImage {
+            let image: UIImage = UIImage(named: imageName)!
             let imageView = UIImageView(image: image)
             
-            var rect:CGRect = imageView.frame
-            rect.size.height = scrollScreenHeight
-            rect.size.width = scrollScreenWidth
-            
-            imageView.frame = rect
-            
+            imageView.center = CGPoint(x: imageCenterPointX, y: imageCenterPointY / CGFloat(2))
+            imageView.bounds.size = CGSize(width: scrollScreenWidth, height: scrollScreenHeight)
             imageView.contentMode = .scaleAspectFit
             
             // UIScrollViewのインスタンスに画像を貼付ける
-            self.slideImage.addSubview(imageView)
+            slideImage.addSubview(imageView)
+            
+            imageCenterPointX = imageCenterPointX + scrollScreenWidth
+            i = i + 1
         }
-        
-        setupScrollImage()
 
+        slideImage.contentSize = CGSize(width: scrollScreenWidth * CGFloat(pageNum), height: scrollScreenHeight)
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -188,23 +194,6 @@ class ViewController: UIViewController {
 
     @IBAction func unwind (_ segue: UIStoryboardSegue ) {
 
-    }
-    
-    func setupScrollImage() {
-        
-        for imageView: UIImageView in slideImage.subviews as! [UIImageView]  {
-            
-            var viewFrame: CGRect = imageView.frame
-            viewFrame.origin = CGPoint(x: px, y: py)
-            imageView.frame = viewFrame
-            
-            px += (slideImage.frame.size.width)
-                
-        }
-        
-        // UIScrollViewのコンテンツサイズを画像のtotalサイズに合わせる
-        let nWidth: CGFloat = scrollScreenWidth * CGFloat(pageNum)
-        slideImage.contentSize = CGSize(width: nWidth, height: scrollScreenHeight)
     }
     
     func initializeStartDrawPoint ( x: CGFloat, y: CGFloat ) {
