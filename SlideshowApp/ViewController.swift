@@ -21,17 +21,7 @@ class ViewController: UIViewController {
     
     var pageNum: Int!    //ページ数
     
-    var imageWidth: CGFloat!
-    var imageHeight: CGFloat!
-    var screenSize: CGRect!
-    
-//    var imageView: UIImageView!
-    
-    // 描画開始の x,y 位置
-    var px: CGFloat = 0.0
-    var py: CGFloat = 0.0
-    
-    //画像を配列に保持
+    //画像（の名前）を配列に保持
     let testImage: [String] = [
         "ACS_wp_a_1536_2048",
         "ACS_wp_b_1536_2048",
@@ -39,10 +29,8 @@ class ViewController: UIViewController {
         "ACS_wp_d_1366_768"
     ]
     
-    var index: Int = 0  //表示する画像のインデックス(配列内の先頭画像を指定)
-    
-    var timer: Timer!   //タイマインスタンス保持用
-    var timerVal: Int = 0
+    var timer: Timer!       //タイマインスタンス保持用
+    var timerVal: Int = 0   //タイマの割り込み時間
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,24 +39,16 @@ class ViewController: UIViewController {
         //再生/停止ボタン状態初期化
         ppButtonInit()
         
-        //画面サイズを取得
-        screenSize = UIScreen.main.bounds
-        
         //ページ単位のスクロールにするため、ScrollScreenの幅を画面の幅と同じにする
-        scrollScreenWidth = screenSize.width
+        scrollScreenWidth = UIScreen.main.bounds.width
         
         pageNum = testImage.count  //表示予定の画像数分のページ
 
         scrollScreenHeight = slideImage.bounds.size.height
         
-        //描画開始位置の設定
-        initializeStartDrawPoint(x: slideImage.bounds.origin.x, y: slideImage.bounds.origin.y)
-        
         //最初の画像の初期位置（中央座標）を設定
         var imageCenterPointX: CGFloat = scrollScreenWidth / CGFloat(2)
         let imageCenterPointY: CGFloat = scrollScreenHeight
-        
-        var i: Int = 1  //ページ数
         
         //画像を数分だけ配置
         for imageName in testImage {
@@ -83,7 +63,6 @@ class ViewController: UIViewController {
             slideImage.addSubview(imageView)
             
             imageCenterPointX = imageCenterPointX + scrollScreenWidth
-            i = i + 1
         }
 
         slideImage.contentSize = CGSize(width: scrollScreenWidth * CGFloat(pageNum), height: scrollScreenHeight)
@@ -102,6 +81,22 @@ class ViewController: UIViewController {
 
     }
     
+    //次の画像を表示（右に1ページ分スライドさせる）
+    @objc func nextImage() {
+        
+        //スライドさせる位置の計算
+        var offset: CGPoint = CGPoint(x: slideImage.contentOffset.x + slideImage.frame.size.width, y: 0)
+        
+        //現在位置が右端のとき、左端の位置を設定
+        if offset.x > slideImage.bounds.size.width * CGFloat(testImage.count - 1) {
+            offset = CGPoint(x: 0, y: 0)
+        }
+        
+        //表示する画像の切り替え（スライド）
+        slideImage.setContentOffset(offset, animated: true)
+        
+    }
+    
     //「戻る」ボタンを押したとき
     @IBAction func pushBwButton(_ sender: Any) {
         
@@ -110,7 +105,7 @@ class ViewController: UIViewController {
         
         //現在位置が左端のとき、右端の位置を設定
         if offset.x < 0 {
-            offset = CGPoint(x: slideImage.bounds.size.width * CGFloat(testImage.count), y: 0)
+            offset = CGPoint(x: slideImage.bounds.size.width * CGFloat(testImage.count - 1), y: 0)
         }
         
         //表示画像の切り替え（スライド）
@@ -118,13 +113,15 @@ class ViewController: UIViewController {
 
     }
     
+    //「再生/停止」ボタンに表示されるテキストの初期化
     func ppButtonInit() {
         playPauseButton.setTitle("再生", for: .normal)
     }
     
+    //「再生/停止」ボタンを押したとき
     @IBAction func ppButtonWork(_ sender: Any) {
         
-        if ( playPauseButton.currentTitle == "再生" ) {   //スライドショーの開始
+        if playPauseButton.currentTitle == "再生"  {   //スライドショーの開始
             
             //2秒間隔を計測するタイマを生成、始動
             if ( self.timer == nil ) {
@@ -135,8 +132,7 @@ class ViewController: UIViewController {
             playPauseButton.setTitle("停止", for: .normal)
             
             //"進む"ボタンと"戻る"ボタンを無効化
-            self.forwardButton.isEnabled = false
-            self.backwardButton.isEnabled = false
+            buttonEnableSwitch(flag: false)
             
             
         } else {    //スライドショーの停止
@@ -151,25 +147,17 @@ class ViewController: UIViewController {
             playPauseButton.setTitle("再生", for: .normal)
             
             //"進む"ボタンと"戻る"ボタンを有効化
-            self.forwardButton.isEnabled = true
-            self.backwardButton.isEnabled = true
+            buttonEnableSwitch(flag: true)
             
         }
         
     }
     
-    @objc func nextImage() {
+    //「進む」、「戻る」ボタンの有効/無効を切り替え
+    func buttonEnableSwitch( flag: Bool ) {
         
-        //スライドさせる位置の計算
-        var offset: CGPoint = CGPoint(x: slideImage.contentOffset.x + slideImage.frame.size.width, y: 0)
-        
-        //現在位置が右端のとき、左端の位置を設定
-        if offset.x > slideImage.bounds.size.width * CGFloat(testImage.count) {
-            offset = CGPoint(x: 0, y: 0)
-        }
-        
-        //表示する画像の切り替え（スライド）
-        slideImage.setContentOffset(offset, animated: true)
+        self.forwardButton.isEnabled = flag     //「進む」ボタン
+        self.backwardButton.isEnabled = flag    //「戻る」ボタン
         
     }
 
@@ -177,7 +165,7 @@ class ViewController: UIViewController {
     @IBAction func tapCloseUpShow(_ sender: Any) {
         
         //拡大画面に遷移
-        performSegue(withIdentifier: "closeUpShow", sender: testImage)
+        performSegue(withIdentifier: "closeUpShow", sender: nil)
         
     }
     
@@ -186,19 +174,14 @@ class ViewController: UIViewController {
 
         if ( segue.identifier == "closeUpShow" ) {
             let closeUpShowViewController = segue.destination as! CloseUpViewController
-            closeUpShowViewController.rcvImage = sender as! [String]
-            closeUpShowViewController.imagePos = Int(slideImage.contentOffset.x / slideImage.bounds.size.width) + 1
+            closeUpShowViewController.closeUpImageNames = testImage
+            closeUpShowViewController.imageIndex = Int(round(slideImage.contentOffset.x / slideImage.bounds.size.width))
             
         }
     }
 
     @IBAction func unwind (_ segue: UIStoryboardSegue ) {
 
-    }
-    
-    func initializeStartDrawPoint ( x: CGFloat, y: CGFloat ) {
-        px = x
-        py = y
     }
     
 }
